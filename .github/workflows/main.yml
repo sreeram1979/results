@@ -1,0 +1,29 @@
+name: Convert CSV to JSON
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Convert CSV to JSON
+        run: |
+          mkdir -p json
+          for file in data/*.csv; do
+            python -c "import pandas as pd; df = pd.read_csv('$file'); df.to_json('json/$(basename ${file%.csv}).json', orient='records')"
+          done
+
+      - name: Commit and Push JSON Files
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add json/*.json
+          git commit -m 'Auto-converted CSV to JSON'
+          git push
