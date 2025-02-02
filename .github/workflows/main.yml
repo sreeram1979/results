@@ -1,5 +1,3 @@
-# Trigger run (forcing GitHub Actions to execute)
-
 name: Convert CSV to JSON
 
 on:
