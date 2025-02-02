@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
 
       - name: Set Up Python
         uses: actions/setup-python@v2
@@ -30,11 +28,13 @@ jobs:
           for file in data/*.csv; do
             python -c "import pandas as pd; df = pd.read_csv('$file'); df.to_json('json/$(basename ${file%.csv}).json', orient='records')"
           done
+          echo "Generated JSON files:"
+          ls -lah json/  # Print JSON files for debugging
 
       - name: Commit and Push JSON Files
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add json/*.json || echo "No changes to commit"
+          git add json/*.json || echo "No JSON files found to commit"
           git commit -m "Auto-converted CSV to JSON" || echo "Nothing to commit"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main || echo "Push failed, skipping"
